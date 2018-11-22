@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">Envíos</string>
+    <string name="title_activity_singin_activity">Sign in</string>
+
+    <string name="email_id">Email ID</string>
+    <string name="password">Contraseña</string>
+    <string name="login">Login</string>
+    <string name="failed">Falló la autenticación</string>
+    <string name="image">Imagen</string>
+    <string name="create_a_new_account">Crear una nueva cuenta!</string>
+    <string name="Open">Open</string>
+    <string name="Close">Close</string>
+
+    <string name="recent_news">Festival Cultural Zacatecas 2018</string>
+    <string name="in_news">Lorem ipsum dolor sit amet consectetur adipiscing elit curae turpis, suspendisse velit enim ut eu gravida phasellus tellus, massa at aliquet facilisis mauris proin ultrices platea. Malesuada at quam platea duis pretium enim, augue cursus tortor cras nascetur interdum, inceptos class id nullam suspendisse. Quisque torquent scelerisque at dis tortor cras ad dictumst, pulvinar justo tempus suscipit bibendum commodo id sociis, vehicula facilisis nam lectus eget iaculis semper.</string>
+    <string name="publish_date">2019-04-30 12:30:00</string>
+
+</resources>
