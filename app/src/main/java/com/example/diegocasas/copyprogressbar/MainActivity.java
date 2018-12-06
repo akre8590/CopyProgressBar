@@ -2,10 +2,12 @@ package com.example.diegocasas.copyprogressbar;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
@@ -45,6 +47,8 @@ public class MainActivity extends AppCompatActivity {
     UsbManager manager;
     PendingIntent mPermissionIntent;
     CardView detect, transf, gene, exit;
+    Boolean usbBoolean = false;
+    Boolean transBoolean = false;
     String rutaOrigen, rutaDestino, archivoOrigen, archivoDestino, sup_ent;
     private static final String ACTION_USB_PERMISSION = "com.example.diegocasas.copyprogressbar";
     CueMsg cueMsg = new CueMsg(MainActivity.this);
@@ -97,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
             @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
             @Override
             public void onClick(View v) {
-                finishAndRemoveTask();
+              showAlertDialogExit();
             }
         });
     }
@@ -188,7 +192,7 @@ public class MainActivity extends AppCompatActivity {
                 FileSystem currentFs = device.getPartitions().get(0).getFileSystem();
                 if (currentFs != null){
                     if (currentFs.getFreeSpace() > 10485760) {
-                        capacityTxt.setText("Capacidad:" + currentFs.getCapacity() + "Espacio libre: " + currentFs.getFreeSpace());
+                        capacityTxt.setText("Capacidad:" + currentFs.getCapacity() + " " +"Espacio libre: " + currentFs.getFreeSpace());
                         if (checkFileExist()) {
                             detect.setClickable(false);
                             trans = (ImageView) findViewById(R.id.trans);
@@ -226,8 +230,8 @@ public class MainActivity extends AppCompatActivity {
                 FileSystem currentFs = device.getPartitions().get(0).getFileSystem();
                 if (currentFs != null){
                     if (currentFs.getFreeSpace() > 10485760) {
-                        capacityTxt.setText("Capacidad:" + currentFs.getCapacity() + "Espacio libre: " + currentFs.getFreeSpace());
-                        if (checkFileExistSup()) {
+                        capacityTxt.setText("Capacidad:" + currentFs.getCapacity() + " " + "Espacio libre: " + currentFs.getFreeSpace());
+                        if (checkFileExist()) {
                             detect.setClickable(false);
                             trans = (ImageView) findViewById(R.id.trans);
                             ProgressDialog progress = new ProgressDialog(MainActivity.this);
@@ -329,19 +333,20 @@ public class MainActivity extends AppCompatActivity {
         }
     };
     public boolean checkFileExist(){
-        File fileSource = new File("storage/emulated/0/AdmCensal/envios/datos_AdmCensal.zip");
-        if (fileSource.exists()){
-            return true;
+        if (sup_ent.equals("S")){
+            File fileSource = new File(rutaDestino + archivoDestino);
+            if (fileSource.exists()){
+                return true;
+            } else {
+                return false;
+            }
         } else {
-            return false;
-        }
-    }
-    public boolean checkFileExistSup(){
-        File fileSource = new File(rutaDestino + archivoDestino);
-        if (fileSource.exists()){
-            return true;
-        } else {
-            return false;
+            File fileSource = new File("storage/emulated/0/AdmCensal/envios/datos_AdmCensal.zip");
+            if (fileSource.exists()){
+                return true;
+            } else {
+                return false;
+            }
         }
     }
     public void deleteAdmCensal(){
@@ -353,5 +358,23 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("DELETE", "storage/emulated/0/AdmCensal/envios/prueba.zip");
             }
         }
+    }
+    public void showAlertDialogExit() {
+        // setup the alert builder
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Cerrar aplicación");
+        builder.setMessage("¿Está seguro?");
+        // add the buttons
+        builder.setPositiveButton("Continuar", new DialogInterface.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                finishAndRemoveTask();
+            }
+        });
+        builder.setNegativeButton("Cancelar", null);
+        // create and show the alert dialog
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 }
