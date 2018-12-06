@@ -22,6 +22,8 @@ import android.support.v7.widget.CardView;
 import android.util.Log;
 
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -38,13 +40,13 @@ import java.util.Iterator;
 public class MainActivity extends AppCompatActivity {
 
     ImageView pkg, usb, trans;
-    TextView textInfo;
+    TextView textInfo, capacityTxt;
     UsbDevice device;
     UsbManager manager;
     PendingIntent mPermissionIntent;
-    CardView detect, transf, gene;
+    CardView detect, transf, gene, exit;
+    String rutaOrigen, rutaDestino, archivoOrigen, archivoDestino, sup_ent;
     private static final String ACTION_USB_PERMISSION = "com.example.diegocasas.copyprogressbar";
-    Button copy;
     CueMsg cueMsg = new CueMsg(MainActivity.this);
     private static final int REQUEST_EXTERNAL_STORAGE = 1;
     private static String[] PERMISSIONS_STORAGE = {
@@ -55,36 +57,47 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        deleteAdmCensal();
+        verifyStoragePermissions(MainActivity.this);
 
+        exit = (CardView)findViewById(R.id.exit);
         gene = (CardView)findViewById(R.id.genePkg);
         textInfo = (TextView) findViewById(R.id.usb);
         pkg = (ImageView)findViewById(R.id.pkg);
         usb = (ImageView)findViewById(R.id.usbImg);
+        capacityTxt = (TextView)findViewById(R.id.capacity);
 
-        verifyStoragePermissions(MainActivity.this);
+        if (getIntent().getStringExtra("rutaOrigen") != null && getIntent().getStringExtra("archivoOrigen") != null && getIntent().getStringExtra("rutaDestino") != null && getIntent().getStringExtra("archivoDestino") != null && getIntent().getStringExtra("tipofigura") != null){
+            rutaOrigen = getIntent().getStringExtra("rutaOrigen"); // ruta del archivo que se va a zipear
+            archivoOrigen = getIntent().getStringExtra("archivoOrigen"); //  archivo que se va a zipear
+            rutaDestino = getIntent().getStringExtra("rutaDestino"); // ruta donde se zipea
+            archivoDestino = getIntent().getStringExtra("archivoDestino"); //nombre del zip
+            sup_ent = getIntent().getStringExtra("tipofigura");
 
-        File fdelete1 = new File("storage/emulated/0/AdmCensal/envios/prueba.zip");
-        if (fdelete1.exists()) {
-            if (fdelete1.delete()) {
-                Log.d("DELETE", "storage/emulated/0/AdmCensal/envios/prueba.zip");
-            } else {
-                Log.d("DELETE", "storage/emulated/0/AdmCensal/envios/prueba.zip");
-            }
+            /**if (sup_ent.equals("S")){
+                Intent intent = new Intent(MainActivity.this, Supervisor.class);
+                startActivity(intent);
+            }**/
+            gene.setOnClickListener(new View.OnClickListener() {
+                @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+                @Override
+                public void onClick(View v) {
+                    if (sup_ent.equals("S")){
+                        generarSup(rutaOrigen, archivoOrigen, rutaDestino, archivoDestino);
+                    }else {
+                        generarEnt(rutaOrigen, archivoOrigen);
+                    }
+                }
+            });
+            capacityTxt.setText(rutaOrigen + archivoOrigen + rutaDestino + archivoDestino +sup_ent);
+        }else {
+            cueMsg.cueError("Sin parámetros");
         }
-        File fdelete2 = new File("storage/emulated/0/Documents/prueba.zip");
-        if (fdelete2.exists()) {
-            if (fdelete2.delete()) {
-                Log.d("DELETE", "storage/emulated/0/Documents/prueba.zip");
-            } else {
-                Log.d("DELETE", "storage/emulated/0/Documents/prueba.zip");
-            }
-        }
-        gene.setOnClickListener(new View.OnClickListener() {
+        exit.setOnClickListener(new View.OnClickListener() {
             @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
             @Override
             public void onClick(View v) {
-                generar();
-
+                finishAndRemoveTask();
             }
         });
     }
@@ -111,13 +124,13 @@ public class MainActivity extends AppCompatActivity {
         }
     }
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    public void generar(){
-        File fileSource = new File("storage/emulated/0/Download/version1.apk");
+    public void generarEnt(String rutaOrigen, String archivoOrigen){
+        File fileSource = new File(rutaOrigen + archivoOrigen);
         if (fileSource.exists()){
             ProgressDialog progress = new ProgressDialog(MainActivity.this);
             progress.setMessage("Generando paquetes...");
             progress.setCancelable(false);
-            new MyTaskGenerar(progress, MainActivity.this, pkg).execute();
+            new MyTaskGenerar(progress, MainActivity.this, pkg, rutaOrigen, archivoOrigen).execute();
             detect =  (CardView)findViewById(R.id.detectUsb);
             gene.setClickable(false);
             detect.setClickable(true);
@@ -129,7 +142,31 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
         }else {
-            cueMsg.cueError("Archivo origen no encontrado");
+            cueMsg.cueError("Archivo no encontrado");
+            pkg.setBackground(getDrawable(R.drawable.cerclebackgroundred));
+            pkg.setImageResource(R.drawable.ic_clear_black_24dp);
+        }
+    }
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    public void generarSup(String rutaOrigen, String archivoOrigen, String rutaDestino, String archivoDestino){
+        File fileSource = new File(rutaOrigen + archivoOrigen);
+        if (fileSource.exists()){
+            ProgressDialog progress = new ProgressDialog(MainActivity.this);
+            progress.setMessage("Generando paquetes...");
+            progress.setCancelable(false);
+            new MyTaskGenerarSup(progress, MainActivity.this, pkg, rutaOrigen, archivoOrigen, rutaDestino, archivoDestino).execute();
+            detect =  (CardView)findViewById(R.id.detectUsb);
+            gene.setClickable(false);
+            detect.setClickable(true);
+            detect.setOnClickListener(new View.OnClickListener() {
+                @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+                @Override
+                public void onClick(View v) {
+                    detectarUsb();
+                }
+            });
+        }else {
+            cueMsg.cueError("Archivo no encontrado");
             pkg.setBackground(getDrawable(R.drawable.cerclebackgroundred));
             pkg.setImageResource(R.drawable.ic_clear_black_24dp);
         }
@@ -139,7 +176,7 @@ public class MainActivity extends AppCompatActivity {
         check();
     }
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    public void transferir(){
+    public void transferirEnt(){
         UsbMassStorageDevice[] devices = UsbMassStorageDevice.getMassStorageDevices(MainActivity.this);
         if (devices.length > 0){
             for (UsbMassStorageDevice device : devices) {
@@ -150,16 +187,21 @@ public class MainActivity extends AppCompatActivity {
                 }
                 FileSystem currentFs = device.getPartitions().get(0).getFileSystem();
                 if (currentFs != null){
-                    if (checkFileExist()){
-                        detect.setClickable(false);
-                        trans = (ImageView)findViewById(R.id.trans);
-                        ProgressDialog progress = new ProgressDialog(MainActivity.this);
-                        progress.setMessage("Copiando paquetes a USB...");
-                        progress.setCancelable(false);
-                        new MyTaskTransferir(progress, MainActivity.this, trans).execute();
-                        transf.setClickable(false);
+                    if (currentFs.getFreeSpace() > 10485760) {
+                        capacityTxt.setText("Capacidad:" + currentFs.getCapacity() + "Espacio libre: " + currentFs.getFreeSpace());
+                        if (checkFileExist()) {
+                            detect.setClickable(false);
+                            trans = (ImageView) findViewById(R.id.trans);
+                            ProgressDialog progress = new ProgressDialog(MainActivity.this);
+                            progress.setMessage("Copiando paquetes a USB...");
+                            progress.setCancelable(false);
+                            new MyTaskTransferir(progress, MainActivity.this, trans).execute();
+                            transf.setClickable(false);
+                        } else {
+                            cueMsg.cueError("El paquete generado no se encuentra o está dañado, favor de generarlo nuevamente");
+                        }
                     } else {
-                        cueMsg.cueError("El paquete generado no se encuentra o está dañado, favor de generarlo nuevamente");
+                        cueMsg.cueError("La USB no cuenta con suficiente espacio libre, por favor libere espacio para que se pueda completar el proceso");
                     }
                 }
             }
@@ -170,7 +212,44 @@ public class MainActivity extends AppCompatActivity {
             textInfo.setText("USB no detectada");
             transf.setClickable(false);
         }
-
+    }
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    public void transferirSup(String rutaDestino, String archivoDestino){
+        UsbMassStorageDevice[] devices = UsbMassStorageDevice.getMassStorageDevices(MainActivity.this);
+        if (devices.length > 0){
+            for (UsbMassStorageDevice device : devices) {
+                try {
+                    device.init();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                FileSystem currentFs = device.getPartitions().get(0).getFileSystem();
+                if (currentFs != null){
+                    if (currentFs.getFreeSpace() > 10485760) {
+                        capacityTxt.setText("Capacidad:" + currentFs.getCapacity() + "Espacio libre: " + currentFs.getFreeSpace());
+                        if (checkFileExistSup()) {
+                            detect.setClickable(false);
+                            trans = (ImageView) findViewById(R.id.trans);
+                            ProgressDialog progress = new ProgressDialog(MainActivity.this);
+                            progress.setMessage("Copiando paquetes a USB...");
+                            progress.setCancelable(false);
+                            new MyTaskTransferirSup(progress, MainActivity.this, trans, rutaDestino, archivoDestino).execute();
+                            transf.setClickable(false);
+                        } else {
+                            cueMsg.cueError("El paquete generado no se encuentra o está dañado, favor de generarlo nuevamente");
+                        }
+                    } else {
+                        cueMsg.cueError("La USB no cuenta con suficiente espacio libre, por favor libere espacio para que se pueda completar el proceso");
+                    }
+                }
+            }
+        } else {
+            usb.setBackground(getDrawable(R.drawable.cerclebackgroundred));
+            usb.setImageResource(R.drawable.ic_clear_black_24dp);
+            cueMsg.cueError("Asegurese que la USB está conectada y vuelva a presionar DETECTAR USB...");
+            textInfo.setText("USB no detectada");
+            transf.setClickable(false);
+        }
     }
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public void check() {
@@ -191,10 +270,7 @@ public class MainActivity extends AppCompatActivity {
                 while (deviceIterator.hasNext()) {
                     device = deviceIterator.next();
                     manager.requestPermission(device, mPermissionIntent);
-                    i += "\n" + "USB Detectada!!" + "\n"
-                            + "DeviceID: " + device.getDeviceId() + "\n";
-                    //+ "VendorID: " + device.getVendorId() + "\n";//2385
-                    //+ "ProductID: " + device.getProductId() + "\n";//5733
+                    i +=  "USB Detectada!!";
                 }
                 textInfo.setText(i);
                 transf = (CardView) findViewById(R.id.transUsb);
@@ -206,7 +282,12 @@ public class MainActivity extends AppCompatActivity {
                 transf.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        transferir();
+                        if (sup_ent.equals("S")){
+                            transferirSup(rutaDestino, archivoDestino);
+                        }else {
+                            transferirEnt();
+                        }
+
                     }
                 });
             } else {
@@ -217,7 +298,6 @@ public class MainActivity extends AppCompatActivity {
                 transf.setClickable(false);
             }
         }
-
     private final BroadcastReceiver mUsbReceiver = new BroadcastReceiver() {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
@@ -249,11 +329,29 @@ public class MainActivity extends AppCompatActivity {
         }
     };
     public boolean checkFileExist(){
-        File fileSource = new File("storage/emulated/0/AdmCensal/envios/prueba.zip");
+        File fileSource = new File("storage/emulated/0/AdmCensal/envios/datos_AdmCensal.zip");
         if (fileSource.exists()){
             return true;
         } else {
             return false;
+        }
+    }
+    public boolean checkFileExistSup(){
+        File fileSource = new File(rutaDestino + archivoDestino);
+        if (fileSource.exists()){
+            return true;
+        } else {
+            return false;
+        }
+    }
+    public void deleteAdmCensal(){
+        File fdelete1 = new File("storage/emulated/0/AdmCensal/envios/datos_AdmCensal.zip");
+        if (fdelete1.exists()) {
+            if (fdelete1.delete()) {
+                Log.d("DELETE", "storage/emulated/0/AdmCensal/envios/datos_AdmCensal.zip");
+            } else {
+                Log.d("DELETE", "storage/emulated/0/AdmCensal/envios/prueba.zip");
+            }
         }
     }
 }

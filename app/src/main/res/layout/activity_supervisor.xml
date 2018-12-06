@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Supervisor"
+    android:background="@color/backgroundcolor">
+
+    <android.support.v7.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:layout_marginTop="200dp"
+        android:layout_marginHorizontal="50dp"
+        android:id="@+id/cardview">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <Button
+                android:padding="10dp"
+                android:id="@+id/transferir"
+                android:gravity="center"
+                android:textColor="#FFFF"
+                android:layout_centerHorizontal="true"
+                android:layout_width="250dp"
+                android:layout_height="80dp"
+                android:text="TRANSFERIR A USB"
+                android:drawableBottom="@drawable/ic_usb_black_24dp"
+                android:background="#2E9AFE" />
+
+            <Button
+                android:layout_marginTop="50dp"
+                android:id="@+id/recibir"
+                android:textColor="#FFFF"
+                android:gravity="center"
+                android:layout_centerHorizontal="true"
+                android:layout_width="250dp"
+                android:layout_height="80dp"
+                android:drawableBottom="@drawable/ic_import_export_black_24dp"
+                android:padding="10dp"
+                android:text="RECIBIR DE ENTREVISTADOR"
+                android:layout_below="@+id/transferir"
+                android:background="#2E9AFE"/>
+
+        </LinearLayout>
+
+    </android.support.v7.widget.CardView>
+
+    <Button
+        android:id="@+id/exitMenuu"
+        android:textColor="#FFFF"
+        android:background="#FE2E2E"
+        android:layout_marginBottom="30dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:text="SALIR"
+        android:layout_width="250dp"
+        android:layout_height="50dp"/>
+
+</RelativeLayout>

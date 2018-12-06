@@ -38,7 +38,6 @@ public class MyTaskTransferir extends AsyncTask<Void, Void, Void> {
     }
 
     public void onPreExecute() {
-
         progress.show();
 
     }
@@ -54,7 +53,6 @@ public class MyTaskTransferir extends AsyncTask<Void, Void, Void> {
         trans.setBackgroundResource(R.drawable.cerclebackgroundgreen);
         trans.setImageResource(R.drawable.ic_check_black_24dp);
     }
-
     public void copyFile3() {
             try {
                 UsbMassStorageDevice[] devices = UsbMassStorageDevice.getMassStorageDevices(context);
@@ -79,9 +77,7 @@ public class MyTaskTransferir extends AsyncTask<Void, Void, Void> {
                     } finally {
 
                     }
-
-                    //Toast.makeText(this, "Source: " + fileSource.getAbsolutePath(), Toast.LENGTH_SHORT).show();
-                    File fileSource = new File("storage/emulated/0/AdmCensal/envios/prueba.zip");
+                    File fileSource = new File("storage/emulated/0/AdmCensal/envios/datos_AdmCensal.zip");
                     InputStream in = new FileInputStream(fileSource);
                     ByteBuffer buffer = ByteBuffer.allocate(4096);
                     int len;

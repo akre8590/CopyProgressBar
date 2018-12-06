@@ -8,8 +8,12 @@
         android:gravity="center"
         android:background="@color/backgroundcolor"
         tools:context=".MainActivity">
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/capacity"/>
 
-        <LinearLayout
+    <LinearLayout
             android:clipToPadding="false"
             android:gravity="center"
             android:orientation="horizontal"
@@ -36,11 +40,12 @@
                         android:src="@drawable/ic_attach_file_black_24dp"
                         android:padding="10dp"/>
                     <TextView
+                        android:textSize="15dp"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textStyle="bold"
                         android:layout_margin="10dp"
-                        android:text="Generar Paquete"/>
+                        android:text="1. Generar Paquete"/>
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
@@ -55,7 +60,6 @@
                         android:textColor="@android:color/darker_gray"/>
                 </LinearLayout>
             </android.support.v7.widget.CardView>
-
             <android.support.v7.widget.CardView
                 android:id="@+id/detectUsb"
                 android:foreground="?android:attr/selectableItemBackground"
@@ -76,11 +80,12 @@
                         android:src="@drawable/ic_usb_black_24dp"
                         android:padding="10dp"/>
                     <TextView
+                        android:textSize="15dp"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textStyle="bold"
                         android:layout_margin="10dp"
-                        android:text="Detectar USB"/>
+                        android:text="2. Detectar USB"/>
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
@@ -125,11 +130,12 @@
                         android:src="@drawable/ic_send_black_24dp"
                         android:padding="10dp"/>
                     <TextView
+                        android:textSize="15dp"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textStyle="bold"
                         android:layout_margin="10dp"
-                        android:text="Transferir a USB"/>
+                        android:text="3. Transferir a USB"/>
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
@@ -145,7 +151,8 @@
                 </LinearLayout>
             </android.support.v7.widget.CardView>
 
-            <android.support.v7.widget.CardView
+           <android.support.v7.widget.CardView
+               android:id="@+id/exit"
                 android:foreground="?android:attr/selectableItemBackground"
                 android:clickable="false"
                 android:layout_width="160dp"
@@ -159,15 +166,15 @@
                     <ImageView
                         android:layout_width="64dp"
                         android:layout_height="64dp"
-                        android:background="@drawable/cerclebackgroundyello"
-                        android:src="@drawable/ic_import_export_black_24dp"
+                        android:background="@drawable/cerclebackgroundred"
+                        android:src="@drawable/ic_exit_to_app_black_24dp"
                         android:padding="10dp"/>
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textStyle="bold"
                         android:layout_margin="10dp"
-                        android:text="Recibir"/>
+                        android:text="4. Salir"/>
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
@@ -177,22 +184,21 @@
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:gravity="center"
-                        android:text="Recbir de entrevistador"
+                        android:text="Salir de la transferencias"
                         android:padding="5dp"
                         android:textColor="@android:color/darker_gray"/>
                 </LinearLayout>
             </android.support.v7.widget.CardView>
         </LinearLayout>
 
-        <LinearLayout
-            android:clipToPadding="false"
-            android:gravity="center"
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+    <RelativeLayout
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
+    </RelativeLayout>
 
-        </LinearLayout>
 
     </LinearLayout>
 
