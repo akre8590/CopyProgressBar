@@ -8,12 +8,47 @@
         android:gravity="center"
         android:background="@color/backgroundcolor"
         tools:context=".MainActivity">
-    <TextView
-        android:layout_width="wrap_content"
+
+    <RelativeLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/capacity"/>
+        android:layout_marginBottom="30dp">
+
+        <Button
+            android:layout_marginLeft="30dp"
+            android:layout_alignParentLeft="true"
+            android:visibility="invisible"
+            android:padding="10dp"
+            android:id="@+id/transferir"
+            android:gravity="center"
+            android:textColor="#FFFF"
+            android:layout_width="170dp"
+            android:layout_height="80dp"
+            android:text="TRANSFERIR A USB"
+            android:drawableBottom="@drawable/ic_usb_black_24dp"
+            android:background="#2E9AFE" />
+
+        <Button
+            android:layout_marginRight="30dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
+            android:visibility="invisible"
+            android:id="@+id/recibir"
+            android:textColor="#FFFF"
+            android:gravity="center"
+            android:layout_width="170dp"
+            android:layout_height="80dp"
+            android:drawableBottom="@drawable/ic_import_export_black_24dp"
+            android:padding="10dp"
+            android:text="RECIBIR DE ENTREVISTADOR"
+            android:layout_below="@+id/transferir"
+            android:background="#2E9AFE"/>
+
+    </RelativeLayout>
+
 
     <LinearLayout
+        android:id="@+id/orientationLayaout"
             android:clipToPadding="false"
             android:gravity="center"
             android:orientation="horizontal"
@@ -21,6 +56,7 @@
             android:layout_height="wrap_content">
 
             <android.support.v7.widget.CardView
+                android:visibility="invisible"
                 android:foreground="?android:attr/selectableItemBackground"
                 android:clickable="true"
                 android:layout_width="160dp"
@@ -61,6 +97,7 @@
                 </LinearLayout>
             </android.support.v7.widget.CardView>
             <android.support.v7.widget.CardView
+                android:visibility="invisible"
                 android:id="@+id/detectUsb"
                 android:foreground="?android:attr/selectableItemBackground"
                 android:clickable="false"
@@ -80,6 +117,7 @@
                         android:src="@drawable/ic_usb_black_24dp"
                         android:padding="10dp"/>
                     <TextView
+                        android:id="@+id/detectUsbTxt"
                         android:textSize="15dp"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -111,6 +149,7 @@
             android:layout_height="wrap_content">
 
             <android.support.v7.widget.CardView
+                android:visibility="invisible"
                 android:id="@+id/transUsb"
                 android:foreground="?android:attr/selectableItemBackground"
                 android:clickable="false"
@@ -130,6 +169,7 @@
                         android:src="@drawable/ic_send_black_24dp"
                         android:padding="10dp"/>
                     <TextView
+                        android:id="@+id/transfTxt"
                         android:textSize="15dp"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -152,6 +192,7 @@
             </android.support.v7.widget.CardView>
 
            <android.support.v7.widget.CardView
+                android:visibility="invisible"
                android:id="@+id/exit"
                 android:foreground="?android:attr/selectableItemBackground"
                 android:clickable="false"
@@ -170,6 +211,7 @@
                         android:src="@drawable/ic_exit_to_app_black_24dp"
                         android:padding="10dp"/>
                     <TextView
+                        android:id="@+id/exitTxt"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textStyle="bold"
@@ -191,14 +233,10 @@
             </android.support.v7.widget.CardView>
         </LinearLayout>
 
-    <RelativeLayout
-        android:gravity="center"
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-    </RelativeLayout>
-
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/capacity"/>
 
     </LinearLayout>
 

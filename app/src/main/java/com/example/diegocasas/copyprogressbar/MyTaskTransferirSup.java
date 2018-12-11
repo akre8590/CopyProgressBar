@@ -6,6 +6,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.mjdev.libaums.UsbMassStorageDevice;
@@ -26,18 +27,18 @@ public class MyTaskTransferirSup extends AsyncTask<Void, Void, Void> {
     Context context;
     ImageView trans;
     String rutaDestino, archivoDestino;
+    TextView transTxt;
 
-    public MyTaskTransferirSup(ProgressDialog progress, Context context, ImageView imageView, String rutaDestino, String archivoDestino) {
+    public MyTaskTransferirSup(ProgressDialog progress, Context context, ImageView imageView, String rutaDestino, String archivoDestino, TextView  textView) {
         this.progress = progress;
         this.context = context;
         this.trans = imageView;
         this.rutaDestino = rutaDestino;
         this.archivoDestino = archivoDestino;
+        this.transTxt = textView;
     }
-
     public void onPreExecute() {
         progress.show();
-
     }
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     public Void doInBackground(Void... unused) {
@@ -50,6 +51,7 @@ public class MyTaskTransferirSup extends AsyncTask<Void, Void, Void> {
         cueMsg.cueCorrect("El proceso finalizó");
         trans.setBackgroundResource(R.drawable.cerclebackgroundgreen);
         trans.setImageResource(R.drawable.ic_check_black_24dp);
+        transTxt.setText("Archivo transferido correctamente");
     }
     public void copyFile2(String rutaDestino, String archivoDestino) {
 

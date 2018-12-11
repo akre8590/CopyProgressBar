@@ -13,6 +13,7 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
+import android.os.AsyncTask;
 import android.os.Build;
 
 import android.support.annotation.RequiresApi;
@@ -28,6 +29,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -40,14 +42,14 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 public class MainActivity extends AppCompatActivity {
-
+    Button transferir, recibir;
     ImageView pkg, usb, trans;
-    TextView textInfo, capacityTxt;
+    TextView textInfo, capacityTxt, transfTxt, exitTxt, detectTxt;
     UsbDevice device;
     UsbManager manager;
     PendingIntent mPermissionIntent;
     CardView detect, transf, gene, exit;
-    Boolean usbBoolean = false;
+    Boolean rec = false;
     Boolean transBoolean = false;
     String rutaOrigen, rutaDestino, archivoOrigen, archivoDestino, sup_ent;
     private static final String ACTION_USB_PERMISSION = "com.example.diegocasas.copyprogressbar";
@@ -63,9 +65,16 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         deleteAdmCensal();
         verifyStoragePermissions(MainActivity.this);
-
+        final LinearLayout myll = (LinearLayout) findViewById(R.id.orientationLayaout);
+        transfTxt = (TextView)findViewById(R.id.transfTxt);
+        exitTxt = (TextView)findViewById(R.id.exitTxt);
+        detectTxt = (TextView)findViewById(R.id.detectUsbTxt);
+        transferir = (Button)findViewById(R.id.transferir);
+        recibir = (Button)findViewById(R.id.recibir);
         exit = (CardView)findViewById(R.id.exit);
         gene = (CardView)findViewById(R.id.genePkg);
+        detect =  (CardView)findViewById(R.id.detectUsb);
+        transf = (CardView) findViewById(R.id.transUsb);
         textInfo = (TextView) findViewById(R.id.usb);
         pkg = (ImageView)findViewById(R.id.pkg);
         usb = (ImageView)findViewById(R.id.usbImg);
@@ -78,10 +87,57 @@ public class MainActivity extends AppCompatActivity {
             archivoDestino = getIntent().getStringExtra("archivoDestino"); //nombre del zip
             sup_ent = getIntent().getStringExtra("tipofigura");
 
-            /**if (sup_ent.equals("S")){
-                Intent intent = new Intent(MainActivity.this, Supervisor.class);
-                startActivity(intent);
-            }**/
+           if (sup_ent.equals("S")){
+               transferir.setVisibility(View.VISIBLE);
+               recibir.setVisibility(View.VISIBLE);
+               capacityTxt.setText("Ruta de origen: " +rutaOrigen +
+                       "\n" + "Nombre archivo origen: " + archivoOrigen +
+                       "\n" + "Ruta destino: " + rutaDestino +
+                       "\n" + "Archivo destino: " + archivoDestino +
+                       "\n" + "Figura: " +sup_ent);
+               transferir.setOnClickListener(new View.OnClickListener() {
+                   @Override
+                   public void onClick(View v) {
+                       gene.setVisibility(View.VISIBLE);
+                       exit.setVisibility(View.VISIBLE);
+                       detect.setVisibility(View.VISIBLE);
+                       transf.setVisibility(View.VISIBLE);
+                       rec = false;
+                       transferir.setVisibility(View.INVISIBLE);
+                       recibir.setVisibility(View.INVISIBLE);
+                   }
+               });
+               recibir.setOnClickListener(new View.OnClickListener() {
+                   @Override
+                   public void onClick(View v) {
+                       myll.setOrientation(LinearLayout.VERTICAL);
+                       myll.setBottom(30);
+                        exit.setVisibility(View.VISIBLE);
+                        detect.setVisibility(View.VISIBLE);
+                        transf.setVisibility(View.VISIBLE);
+                        gene.setVisibility(View.INVISIBLE);
+                        rec = true;
+                        transferir.setVisibility(View.INVISIBLE);
+                        recibir.setVisibility(View.INVISIBLE);
+                        detectTxt.setText("1. Detectar USB");
+                        transfTxt.setText("2. Recibe de USB");
+                        exitTxt.setText("3. Integrar");
+                        detect.setClickable(true);
+                        detect.setOnClickListener(new View.OnClickListener() {
+                           @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+                           @Override
+                           public void onClick(View v) {
+                               detectarUsb();
+                           }
+                       });
+                   }
+               });
+           } else if (sup_ent.equals("E")){
+               gene.setVisibility(View.VISIBLE);
+               exit.setVisibility(View.VISIBLE);
+               detect.setVisibility(View.VISIBLE);
+               transf.setVisibility(View.VISIBLE);
+           }
             gene.setOnClickListener(new View.OnClickListener() {
                 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
                 @Override
@@ -89,11 +145,15 @@ public class MainActivity extends AppCompatActivity {
                     if (sup_ent.equals("S")){
                         generarSup(rutaOrigen, archivoOrigen, rutaDestino, archivoDestino);
                     }else {
-                        generarEnt(rutaOrigen, archivoOrigen);
+                        generarEnt(rutaOrigen, archivoOrigen, rutaDestino, archivoDestino);
                     }
                 }
             });
-            capacityTxt.setText(rutaOrigen + archivoOrigen + rutaDestino + archivoDestino +sup_ent);
+            capacityTxt.setText("Ruta de origen: " +rutaOrigen +
+                    "\n" + "Nombre archivo origen: " + archivoOrigen +
+                    "\n" + "Ruta destino: " + rutaDestino +
+                    "\n" + "Archivo destino: " + archivoDestino +
+                    "\n" + "Figura: " +sup_ent);
         }else {
             cueMsg.cueError("Sin parámetros");
         }
@@ -101,7 +161,13 @@ public class MainActivity extends AppCompatActivity {
             @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
             @Override
             public void onClick(View v) {
-              showAlertDialogExit();
+                if (sup_ent.equals("S") && !rec){
+                   showAlertDialogExit();
+                } else if (sup_ent.equals("S") && rec) {
+                    showAlertDialogInteger();
+                } else {
+                    showAlertDialogExit();
+                }
             }
         });
     }
@@ -111,7 +177,7 @@ public class MainActivity extends AppCompatActivity {
         if(intent.getAction().equals(UsbManager.ACTION_USB_DEVICE_ATTACHED))
         {
             UsbDevice device  = (UsbDevice)intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
-           cueMsg.cueCorrect("Memoria USB Conectada");
+            cueMsg.cueCorrect("Memoria USB Conectada");
         }
     }
     public static void verifyStoragePermissions(Activity activity) {
@@ -128,13 +194,13 @@ public class MainActivity extends AppCompatActivity {
         }
     }
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    public void generarEnt(String rutaOrigen, String archivoOrigen){
+    public void generarEnt(String rutaOrigen, String archivoOrigen, String rutaDestino, String archivoDestino){
         File fileSource = new File(rutaOrigen + archivoOrigen);
         if (fileSource.exists()){
             ProgressDialog progress = new ProgressDialog(MainActivity.this);
             progress.setMessage("Generando paquetes...");
             progress.setCancelable(false);
-            new MyTaskGenerar(progress, MainActivity.this, pkg, rutaOrigen, archivoOrigen).execute();
+            new MyTaskGenerar(progress, MainActivity.this, pkg, rutaOrigen, archivoOrigen, rutaDestino, archivoDestino).execute();
             detect =  (CardView)findViewById(R.id.detectUsb);
             gene.setClickable(false);
             detect.setClickable(true);
@@ -192,14 +258,15 @@ public class MainActivity extends AppCompatActivity {
                 FileSystem currentFs = device.getPartitions().get(0).getFileSystem();
                 if (currentFs != null){
                     if (currentFs.getFreeSpace() > 10485760) {
-                        capacityTxt.setText("Capacidad:" + currentFs.getCapacity() + " " +"Espacio libre: " + currentFs.getFreeSpace());
+                        capacityTxt.setText("Capacidad:" + currentFs.getCapacity() + "\n" +
+                                "Espacio libre: " + currentFs.getFreeSpace());
                         if (checkFileExist()) {
                             detect.setClickable(false);
                             trans = (ImageView) findViewById(R.id.trans);
                             ProgressDialog progress = new ProgressDialog(MainActivity.this);
                             progress.setMessage("Copiando paquetes a USB...");
                             progress.setCancelable(false);
-                            new MyTaskTransferir(progress, MainActivity.this, trans).execute();
+                            new MyTaskTransferir(progress, MainActivity.this, trans, rutaDestino, archivoDestino, transfTxt).execute();
                             transf.setClickable(false);
                         } else {
                             cueMsg.cueError("El paquete generado no se encuentra o está dañado, favor de generarlo nuevamente");
@@ -230,14 +297,15 @@ public class MainActivity extends AppCompatActivity {
                 FileSystem currentFs = device.getPartitions().get(0).getFileSystem();
                 if (currentFs != null){
                     if (currentFs.getFreeSpace() > 10485760) {
-                        capacityTxt.setText("Capacidad:" + currentFs.getCapacity() + " " + "Espacio libre: " + currentFs.getFreeSpace());
+                        capacityTxt.setText("Capacidad:" + currentFs.getCapacity() + "\n" +
+                                "Espacio libre: " + currentFs.getFreeSpace());
                         if (checkFileExist()) {
                             detect.setClickable(false);
                             trans = (ImageView) findViewById(R.id.trans);
                             ProgressDialog progress = new ProgressDialog(MainActivity.this);
                             progress.setMessage("Copiando paquetes a USB...");
                             progress.setCancelable(false);
-                            new MyTaskTransferirSup(progress, MainActivity.this, trans, rutaDestino, archivoDestino).execute();
+                            new MyTaskTransferirSup(progress, MainActivity.this, trans, rutaDestino, archivoDestino, transfTxt).execute();
                             transf.setClickable(false);
                         } else {
                             cueMsg.cueError("El paquete generado no se encuentra o está dañado, favor de generarlo nuevamente");
@@ -247,6 +315,25 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
             }
+        } else {
+            usb.setBackground(getDrawable(R.drawable.cerclebackgroundred));
+            usb.setImageResource(R.drawable.ic_clear_black_24dp);
+            cueMsg.cueError("Asegurese que la USB está conectada y vuelva a presionar DETECTAR USB...");
+            textInfo.setText("USB no detectada");
+            transf.setClickable(false);
+        }
+    }
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    private void recived(){
+        UsbMassStorageDevice[] devices = UsbMassStorageDevice.getMassStorageDevices(MainActivity.this);
+        if (devices.length > 0){
+            detect.setClickable(false);
+            trans = (ImageView) findViewById(R.id.trans);
+            ProgressDialog progress = new ProgressDialog(MainActivity.this);
+            progress.setMessage("Recibiendo paquetes desde USB...");
+            progress.setCancelable(false);
+            new MyTaskRecibir(progress, MainActivity.this, trans, transfTxt).execute();
+            transf.setClickable(false);
         } else {
             usb.setBackground(getDrawable(R.drawable.cerclebackgroundred));
             usb.setImageResource(R.drawable.ic_clear_black_24dp);
@@ -286,12 +373,13 @@ public class MainActivity extends AppCompatActivity {
                 transf.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if (sup_ent.equals("S")){
+                        if (sup_ent.equals("S") && !rec){
                             transferirSup(rutaDestino, archivoDestino);
-                        }else {
+                        } else if (sup_ent.equals("S") && rec) {
+                            recived();
+                        } else {
                             transferirEnt();
                         }
-
                     }
                 });
             } else {
@@ -376,5 +464,44 @@ public class MainActivity extends AppCompatActivity {
         // create and show the alert dialog
         AlertDialog dialog = builder.create();
         dialog.show();
+    }
+    public void showAlertDialogInteger() {
+        // setup the alert builder
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Integrar base de datos");
+        builder.setMessage("¿Está seguro?");
+        // add the buttons
+        builder.setPositiveButton("Continuar", new DialogInterface.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                new MyTaskIntegrar().execute();
+            }
+        });
+        builder.setNegativeButton("Cancelar", null);
+        // create and show the alert dialog
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+    public class MyTaskIntegrar extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected void onPreExecute() {
+
+        }
+        @Override
+        protected Void doInBackground(Void... voids) {
+            Intent intent = new Intent("com.embarcadero.AdmCensal");
+            intent.setType("text/pas");
+            intent.setAction(Intent.ACTION_VIEW);
+            intent.putExtra("test","Esto es una prueba");
+            startActivity(intent);
+            return null;
+        }
+        @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            finishAndRemoveTask();
+        }
+
     }
 }
