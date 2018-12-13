@@ -54,7 +54,6 @@ public class MyTaskTransferir extends AsyncTask<Void, Void, Void> {
         }catch (Exception e){
             e.printStackTrace();
         }
-
         try {
             createDir();
         }catch (Exception e){

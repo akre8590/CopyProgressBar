@@ -42,6 +42,11 @@ public class MyTaskTransferirSup extends AsyncTask<Void, Void, Void> {
     }
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     public Void doInBackground(Void... unused) {
+        try {
+            createDir2();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
         copyFile2(rutaDestino, archivoDestino);
         return null;
     }
@@ -64,7 +69,7 @@ public class MyTaskTransferirSup extends AsyncTask<Void, Void, Void> {
                 device.init();
                 FileSystem currentFs = device.getPartitions().get(0).getFileSystem();
                 UsbFile root = currentFs.getRootDirectory();
-                try{
+                /**try{
                     if (currentFs == null){
                         throw new Exception("USB no detectada, por favor inserte una...");
                     }
@@ -77,7 +82,7 @@ public class MyTaskTransferirSup extends AsyncTask<Void, Void, Void> {
 
                 } finally {
 
-                }
+                }**/
 
                 File fileSource = new File(rutaDestino + archivoDestino);
                 // Toast.makeText(this, "Source: " + fileSource.getAbsolutePath(), Toast.LENGTH_SHORT).show();
@@ -86,7 +91,9 @@ public class MyTaskTransferirSup extends AsyncTask<Void, Void, Void> {
                 ByteBuffer buffer = ByteBuffer.allocate(4096);
                 int len;
 
-                UsbFile file = root.createFile(archivoDestino);
+                UsbFile folder = root.search("envios");
+                UsbFile file = folder.createFile(archivoDestino);
+                //UsbFile file = root.createFile(archivoDestino);
                 UsbFileOutputStream mOutPut = new UsbFileOutputStream(file);
 
                 while ((len = in.read(buffer.array())) > 0) {
@@ -103,5 +110,24 @@ public class MyTaskTransferirSup extends AsyncTask<Void, Void, Void> {
             Toast.makeText(context, e1.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
+    public void createDir2(){
+        try {
+            UsbMassStorageDevice[] devices = UsbMassStorageDevice.getMassStorageDevices(context);
 
+            for (UsbMassStorageDevice device : devices) {
+
+                // before interacting with a device you need to call init()!
+                device.init();
+                FileSystem currentFs = device.getPartitions().get(0).getFileSystem();
+                UsbFile root = currentFs.getRootDirectory();
+                root.createDirectory("envios");
+            }
+        } catch (FileNotFoundException e1) {
+            e1.printStackTrace();
+            Toast.makeText(context, e1.getMessage(), Toast.LENGTH_SHORT).show();
+        } catch (IOException e1) {
+            e1.printStackTrace();
+            Toast.makeText(context, e1.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
 }

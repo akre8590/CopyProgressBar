@@ -11,6 +11,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.graphics.drawable.Drawable;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.os.AsyncTask;
@@ -42,7 +43,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 public class MainActivity extends AppCompatActivity {
-    Button transferir, recibir;
+    Button transferir, recibir, exitBtn;
     ImageView pkg, usb, trans;
     TextView textInfo, capacityTxt, transfTxt, exitTxt, detectTxt;
     UsbDevice device;
@@ -79,6 +80,7 @@ public class MainActivity extends AppCompatActivity {
         pkg = (ImageView)findViewById(R.id.pkg);
         usb = (ImageView)findViewById(R.id.usbImg);
         capacityTxt = (TextView)findViewById(R.id.capacity);
+        exitBtn = (Button)findViewById(R.id.exitButton);
 
         if (getIntent().getStringExtra("rutaOrigen") != null && getIntent().getStringExtra("archivoOrigen") != null && getIntent().getStringExtra("rutaDestino") != null && getIntent().getStringExtra("archivoDestino") != null && getIntent().getStringExtra("tipofigura") != null){
             rutaOrigen = getIntent().getStringExtra("rutaOrigen"); // ruta del archivo que se va a zipear
@@ -90,12 +92,20 @@ public class MainActivity extends AppCompatActivity {
            if (sup_ent.equals("S")){
                transferir.setVisibility(View.VISIBLE);
                recibir.setVisibility(View.VISIBLE);
-               capacityTxt.setText("Ruta de origen: " +rutaOrigen +
+               exitBtn.setVisibility(View.VISIBLE);
+               exitBtn.setOnClickListener(new View.OnClickListener() {
+                   @Override
+                   public void onClick(View v) {
+                       showAlertDialogExit();
+                   }
+               });
+               /**capacityTxt.setText("Ruta de origen: " +rutaOrigen +
                        "\n" + "Nombre archivo origen: " + archivoOrigen +
                        "\n" + "Ruta destino: " + rutaDestino +
                        "\n" + "Archivo destino: " + archivoDestino +
-                       "\n" + "Figura: " +sup_ent);
+                       "\n" + "Figura: " +sup_ent);**/
                transferir.setOnClickListener(new View.OnClickListener() {
+                   @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
                    @Override
                    public void onClick(View v) {
                        gene.setVisibility(View.VISIBLE);
@@ -105,25 +115,34 @@ public class MainActivity extends AppCompatActivity {
                        rec = false;
                        transferir.setVisibility(View.INVISIBLE);
                        recibir.setVisibility(View.INVISIBLE);
+                       exitBtn.setVisibility(View.INVISIBLE);
                    }
                });
                recibir.setOnClickListener(new View.OnClickListener() {
+                   @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
                    @Override
                    public void onClick(View v) {
                        myll.setOrientation(LinearLayout.VERTICAL);
                        myll.setBottom(30);
-                        exit.setVisibility(View.VISIBLE);
-                        detect.setVisibility(View.VISIBLE);
-                        transf.setVisibility(View.VISIBLE);
-                        gene.setVisibility(View.INVISIBLE);
-                        rec = true;
-                        transferir.setVisibility(View.INVISIBLE);
-                        recibir.setVisibility(View.INVISIBLE);
-                        detectTxt.setText("1. Detectar USB");
-                        transfTxt.setText("2. Recibe de USB");
-                        exitTxt.setText("3. Integrar");
-                        detect.setClickable(true);
-                        detect.setOnClickListener(new View.OnClickListener() {
+                       exitBtn.setVisibility(View.VISIBLE);
+                       exitBtn.setOnClickListener(new View.OnClickListener() {
+                           @Override
+                           public void onClick(View v) {
+                              showAlertDialogExit();
+                           }
+                       });
+                       exit.setVisibility(View.VISIBLE);
+                       detect.setVisibility(View.VISIBLE);
+                       transf.setVisibility(View.VISIBLE);
+                       gene.setVisibility(View.INVISIBLE);
+                       rec = true;
+                       transferir.setVisibility(View.INVISIBLE);
+                       recibir.setVisibility(View.INVISIBLE);
+                       detectTxt.setText("1. Detectar USB");
+                       transfTxt.setText("2. Recibe de USB");
+                       exitTxt.setText("3. Integrar");
+                       detect.setClickable(true);
+                       detect.setOnClickListener(new View.OnClickListener() {
                            @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
                            @Override
                            public void onClick(View v) {
@@ -149,11 +168,11 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
             });
-            capacityTxt.setText("Ruta de origen: " +rutaOrigen +
+            /**capacityTxt.setText("Ruta de origen: " +rutaOrigen +
                     "\n" + "Nombre archivo origen: " + archivoOrigen +
                     "\n" + "Ruta destino: " + rutaDestino +
                     "\n" + "Archivo destino: " + archivoDestino +
-                    "\n" + "Figura: " +sup_ent);
+                    "\n" + "Figura: " +sup_ent);**/
         }else {
             cueMsg.cueError("Sin parámetros");
         }
@@ -164,7 +183,12 @@ public class MainActivity extends AppCompatActivity {
                 if (sup_ent.equals("S") && !rec){
                    showAlertDialogExit();
                 } else if (sup_ent.equals("S") && rec) {
-                    showAlertDialogInteger();
+                    File file1 = new File("/storage/emulated/0/AdmCensal/recepciones/datos_AdmCensal.zip");
+                    if (file1.exists()) {
+                        showAlertDialogInteger();
+                    }else {
+                        cueMsg.cueError("No se ha recibido o no se encuentra el paquete para integrar...");
+                    }
                 } else {
                     showAlertDialogExit();
                 }
@@ -258,8 +282,8 @@ public class MainActivity extends AppCompatActivity {
                 FileSystem currentFs = device.getPartitions().get(0).getFileSystem();
                 if (currentFs != null){
                     if (currentFs.getFreeSpace() > 10485760) {
-                        capacityTxt.setText("Capacidad:" + currentFs.getCapacity() + "\n" +
-                                "Espacio libre: " + currentFs.getFreeSpace());
+                        /**capacityTxt.setText("Capacidad:" + currentFs.getCapacity() + "\n" +
+                                "Espacio libre: " + currentFs.getFreeSpace());**/
                         if (checkFileExist()) {
                             detect.setClickable(false);
                             trans = (ImageView) findViewById(R.id.trans);
@@ -297,8 +321,8 @@ public class MainActivity extends AppCompatActivity {
                 FileSystem currentFs = device.getPartitions().get(0).getFileSystem();
                 if (currentFs != null){
                     if (currentFs.getFreeSpace() > 10485760) {
-                        capacityTxt.setText("Capacidad:" + currentFs.getCapacity() + "\n" +
-                                "Espacio libre: " + currentFs.getFreeSpace());
+                        /**capacityTxt.setText("Capacidad:" + currentFs.getCapacity() + "\n" +
+                                "Espacio libre: " + currentFs.getFreeSpace());**/
                         if (checkFileExist()) {
                             detect.setClickable(false);
                             trans = (ImageView) findViewById(R.id.trans);
