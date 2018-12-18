@@ -51,7 +51,8 @@ public class MainActivity extends AppCompatActivity {
     PendingIntent mPermissionIntent;
     CardView detect, transf, gene, exit;
     Boolean rec = false;
-    Boolean transBoolean = false;
+    Boolean back = false;
+    LinearLayout myll;
     String rutaOrigen, rutaDestino, archivoOrigen, archivoDestino, sup_ent;
     private static final String ACTION_USB_PERMISSION = "com.example.diegocasas.copyprogressbar";
     CueMsg cueMsg = new CueMsg(MainActivity.this);
@@ -66,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         deleteAdmCensal();
         verifyStoragePermissions(MainActivity.this);
-        final LinearLayout myll = (LinearLayout) findViewById(R.id.orientationLayaout);
+        myll = (LinearLayout) findViewById(R.id.orientationLayaout);
         transfTxt = (TextView)findViewById(R.id.transfTxt);
         exitTxt = (TextView)findViewById(R.id.exitTxt);
         detectTxt = (TextView)findViewById(R.id.detectUsbTxt);
@@ -108,47 +109,14 @@ public class MainActivity extends AppCompatActivity {
                    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
                    @Override
                    public void onClick(View v) {
-                       gene.setVisibility(View.VISIBLE);
-                       exit.setVisibility(View.VISIBLE);
-                       detect.setVisibility(View.VISIBLE);
-                       transf.setVisibility(View.VISIBLE);
-                       rec = false;
-                       transferir.setVisibility(View.INVISIBLE);
-                       recibir.setVisibility(View.INVISIBLE);
-                       exitBtn.setVisibility(View.INVISIBLE);
+                     showAlertDialogTransferir();
                    }
                });
                recibir.setOnClickListener(new View.OnClickListener() {
                    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
                    @Override
                    public void onClick(View v) {
-                       myll.setOrientation(LinearLayout.VERTICAL);
-                       myll.setBottom(30);
-                       exitBtn.setVisibility(View.VISIBLE);
-                       exitBtn.setOnClickListener(new View.OnClickListener() {
-                           @Override
-                           public void onClick(View v) {
-                              showAlertDialogExit();
-                           }
-                       });
-                       exit.setVisibility(View.VISIBLE);
-                       detect.setVisibility(View.VISIBLE);
-                       transf.setVisibility(View.VISIBLE);
-                       gene.setVisibility(View.INVISIBLE);
-                       rec = true;
-                       transferir.setVisibility(View.INVISIBLE);
-                       recibir.setVisibility(View.INVISIBLE);
-                       detectTxt.setText("1. Detectar USB");
-                       transfTxt.setText("2. Recibe de USB");
-                       exitTxt.setText("3. Integrar");
-                       detect.setClickable(true);
-                       detect.setOnClickListener(new View.OnClickListener() {
-                           @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-                           @Override
-                           public void onClick(View v) {
-                               detectarUsb();
-                           }
-                       });
+                     showAlertDialogRecibir();
                    }
                });
            } else if (sup_ent.equals("E")){
@@ -180,7 +148,7 @@ public class MainActivity extends AppCompatActivity {
             @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
             @Override
             public void onClick(View v) {
-                if (sup_ent.equals("S") && !rec){
+               if (sup_ent.equals("S") && !rec){
                    showAlertDialogExit();
                 } else if (sup_ent.equals("S") && rec) {
                     File file1 = new File("/storage/emulated/0/AdmCensal/recepciones/datos_AdmCensal.zip");
@@ -481,6 +449,14 @@ public class MainActivity extends AppCompatActivity {
             @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                File fdelete2 = new File(rutaOrigen + archivoOrigen);
+                if (fdelete2.exists()) {
+                    if (fdelete2.delete()) {
+                        Log.d("DELETE", rutaOrigen + archivoOrigen);
+                    } else {
+                        Log.d("DELETE", rutaOrigen + archivoOrigen);
+                    }
+                }
                 finishAndRemoveTask();
             }
         });
@@ -507,10 +483,105 @@ public class MainActivity extends AppCompatActivity {
         AlertDialog dialog = builder.create();
         dialog.show();
     }
+    public void showAlertDialogRecibir() {
+        // setup the alert builder
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Recibir de USB");
+        builder.setMessage("¿Desea recibir paquetes de USB?");
+        // add the buttons
+        builder.setPositiveButton("Continuar", new DialogInterface.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                myll.setOrientation(LinearLayout.VERTICAL);
+
+                transferir.setVisibility(View.INVISIBLE);
+                recibir.setVisibility(View.INVISIBLE);
+                exitBtn.setVisibility(View.VISIBLE);
+                exitBtn.setText("REGRESAR");
+                exitBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = getIntent();
+                        finish();
+                        startActivity(intent);
+                        back = false;
+                    }
+                });
+                exit.setVisibility(View.VISIBLE);
+                detect.setVisibility(View.VISIBLE);
+                transf.setVisibility(View.VISIBLE);
+                gene.setVisibility(View.INVISIBLE);
+                rec = true;
+                detectTxt.setText("1. Detectar USB");
+                transfTxt.setText("2. Recibe de USB");
+                exitTxt.setText("3. Integrar");
+                detect.setClickable(true);
+                detect.setOnClickListener(new View.OnClickListener() {
+                    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+                    @Override
+                    public void onClick(View v) {
+                        detectarUsb();
+                    }
+                });
+            }
+        });
+        builder.setNegativeButton("Cancelar", null);
+        // create and show the alert dialog
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+    public void showAlertDialogTransferir() {
+        // setup the alert builder
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Transferir a USB");
+        builder.setMessage("¿Desea transferir a USB?");
+        // add the buttons
+        builder.setPositiveButton("Continuar", new DialogInterface.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                gene.setVisibility(View.VISIBLE);
+                exit.setVisibility(View.VISIBLE);
+                detect.setVisibility(View.VISIBLE);
+                transf.setVisibility(View.VISIBLE);
+                rec = false;
+                back = true;
+                if (back){
+                    exitBtn.setVisibility(View.VISIBLE);
+                    exitBtn.setText("REGRESAR");
+                    exitBtn.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Intent intent = getIntent();
+                            finish();
+                            startActivity(intent);
+                            back = false;
+                        }
+                    });
+                }
+                //myll.setOrientation(LinearLayout.HORIZONTAL);
+                detectTxt.setText("2. Detectar USB");
+                transfTxt.setText("3. Transferir a USB");
+                exitTxt.setText("4. Salir");
+                transferir.setVisibility(View.INVISIBLE);
+                recibir.setVisibility(View.INVISIBLE);
+            }
+        });
+        builder.setNegativeButton("Cancelar", null);
+        // create and show the alert dialog
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    @Override
+    public void onBackPressed() {
+        cueMsg.cueWarning("Para regresar presione salir");
+    }
+
     public class MyTaskIntegrar extends AsyncTask<Void, Void, Void> {
         @Override
         protected void onPreExecute() {
-
         }
         @Override
         protected Void doInBackground(Void... voids) {
@@ -526,6 +597,5 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(Void aVoid) {
             finishAndRemoveTask();
         }
-
     }
 }

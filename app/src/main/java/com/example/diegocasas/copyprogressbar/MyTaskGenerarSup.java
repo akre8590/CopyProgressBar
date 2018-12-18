@@ -58,14 +58,14 @@ public class MyTaskGenerarSup extends AsyncTask<Void, Void, Void> {
                 Log.d("DELETE", rutaOrigen + nombreZip);
             }
         }
-        File fdelete2 = new File(rutaOrigen + nombreDB);
+        /**File fdelete2 = new File(rutaOrigen + nombreDB);
         if (fdelete2.exists()) {
             if (fdelete2.delete()) {
                 Log.d("DELETE", rutaOrigen + nombreDB);
             } else {
                 Log.d("DELETE", rutaOrigen + nombreDB);
             }
-        }
+        }**/
     }
 
 }
