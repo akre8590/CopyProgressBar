@@ -31,4 +31,5 @@ dependencies {
     implementation 'com.github.ghost1372:Mzip-Android:0.4.0'
     implementation 'com.fxn769:cue:1.1'
     implementation 'com.github.mjdev:libaums:0.5.5'
+    implementation 'net.zetetic:android-database-sqlcipher:4.0.1'
 }

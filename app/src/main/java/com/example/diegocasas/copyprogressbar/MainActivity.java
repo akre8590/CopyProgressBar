@@ -43,6 +43,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 public class MainActivity extends AppCompatActivity {
+    public static String DB_NAME = "original.db3";
+    public static String DB_PATH = "/storage/emulated/0/Test/";
     Button transferir, recibir, exitBtn;
     ImageView pkg, usb, trans;
     TextView textInfo, capacityTxt, transfTxt, exitTxt, detectTxt;
@@ -572,6 +574,10 @@ public class MainActivity extends AppCompatActivity {
         // create and show the alert dialog
         AlertDialog dialog = builder.create();
         dialog.show();
+    }
+    private boolean checkDataBase() {
+        File databasePath = getApplicationContext().getDatabasePath(DB_PATH + DB_NAME);
+        return databasePath.exists();
     }
 
     @Override

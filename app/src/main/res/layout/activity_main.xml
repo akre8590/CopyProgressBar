@@ -15,6 +15,7 @@
         android:layout_marginBottom="30dp">
 
         <Button
+            style="@style/Widget.MaterialComponents.Button"
             android:layout_marginLeft="30dp"
             android:layout_alignParentLeft="true"
             android:visibility="invisible"
@@ -45,7 +46,6 @@
             android:background="#2E9AFE"/>
 
     </RelativeLayout>
-
 
     <LinearLayout
         android:id="@+id/orientationLayaout"
@@ -242,7 +242,6 @@
         android:layout_marginTop="20dp"
         android:background="@color/redColor"
         android:visibility="invisible"/>
-
 
     <TextView
         android:layout_width="wrap_content"

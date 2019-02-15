@@ -16,6 +16,7 @@ import com.github.mjdev.libaums.UsbMassStorageDevice;
 import com.github.mjdev.libaums.fs.FileSystem;
 import com.github.mjdev.libaums.fs.UsbFile;
 import com.github.mjdev.libaums.fs.UsbFileOutputStream;
+import com.github.mjdev.libaums.partition.Partition;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -23,6 +24,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 
@@ -129,6 +132,7 @@ public class MyTaskTransferir extends AsyncTask<Void, Void, Void> {
                 // before interacting with a device you need to call init()!
                 device.init();
                 FileSystem currentFs = device.getPartitions().get(0).getFileSystem();
+
                 UsbFile root = currentFs.getRootDirectory();
 
                 File fileSource = new File(rutaDestino + archivoDestino);
