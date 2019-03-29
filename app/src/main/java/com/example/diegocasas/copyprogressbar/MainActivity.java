@@ -36,6 +36,7 @@ import android.widget.Toast;
 
 import com.github.mjdev.libaums.UsbMassStorageDevice;
 import com.github.mjdev.libaums.fs.FileSystem;
+import com.sqlitecrypt.database.SQLiteDatabase;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,8 +44,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 public class MainActivity extends AppCompatActivity {
-    public static String DB_NAME = "original.db3";
-    public static String DB_PATH = "/storage/emulated/0/Test/";
+
     Button transferir, recibir, exitBtn;
     ImageView pkg, usb, trans;
     TextView textInfo, capacityTxt, transfTxt, exitTxt, detectTxt;
@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
     Boolean rec = false;
     Boolean back = false;
     LinearLayout myll;
-    String rutaOrigen, rutaDestino, archivoOrigen, archivoDestino, sup_ent;
+    String rutaOrigen, rutaDestino, archivoOrigen, archivoDestino, sup_ent, md5;
     private static final String ACTION_USB_PERMISSION = "com.example.diegocasas.copyprogressbar";
     CueMsg cueMsg = new CueMsg(MainActivity.this);
     private static final int REQUEST_EXTERNAL_STORAGE = 1;
@@ -67,6 +67,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        SQLiteDatabase.loadLibs(this);
         deleteAdmCensal();
         verifyStoragePermissions(MainActivity.this);
         myll = (LinearLayout) findViewById(R.id.orientationLayaout);
@@ -85,12 +86,13 @@ public class MainActivity extends AppCompatActivity {
         capacityTxt = (TextView)findViewById(R.id.capacity);
         exitBtn = (Button)findViewById(R.id.exitButton);
 
-        if (getIntent().getStringExtra("rutaOrigen") != null && getIntent().getStringExtra("archivoOrigen") != null && getIntent().getStringExtra("rutaDestino") != null && getIntent().getStringExtra("archivoDestino") != null && getIntent().getStringExtra("tipofigura") != null){
+        if (getIntent().getStringExtra("md5") != null && getIntent().getStringExtra("rutaOrigen") != null && getIntent().getStringExtra("archivoOrigen") != null && getIntent().getStringExtra("rutaDestino") != null && getIntent().getStringExtra("archivoDestino") != null && getIntent().getStringExtra("tipofigura") != null){
             rutaOrigen = getIntent().getStringExtra("rutaOrigen"); // ruta del archivo que se va a zipear
             archivoOrigen = getIntent().getStringExtra("archivoOrigen"); //  archivo que se va a zipear
             rutaDestino = getIntent().getStringExtra("rutaDestino"); // ruta donde se zipea
             archivoDestino = getIntent().getStringExtra("archivoDestino"); //nombre del zip
             sup_ent = getIntent().getStringExtra("tipofigura");
+            md5 = getIntent().getStringExtra("md5");
 
            if (sup_ent.equals("S")){
                transferir.setVisibility(View.VISIBLE);
@@ -132,7 +134,7 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     if (sup_ent.equals("S")){
-                        generarSup(rutaOrigen, archivoOrigen, rutaDestino, archivoDestino);
+                        generarSup(rutaOrigen, archivoOrigen, rutaDestino, archivoDestino, md5);
                     }else {
                         generarEnt(rutaOrigen, archivoOrigen, rutaDestino, archivoDestino);
                     }
@@ -212,13 +214,13 @@ public class MainActivity extends AppCompatActivity {
         }
     }
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    public void generarSup(String rutaOrigen, String archivoOrigen, String rutaDestino, String archivoDestino){
+    public void generarSup(String rutaOrigen, String archivoOrigen, String rutaDestino, String archivoDestino, String md5){
         File fileSource = new File(rutaOrigen + archivoOrigen);
         if (fileSource.exists()){
             ProgressDialog progress = new ProgressDialog(MainActivity.this);
             progress.setMessage("Generando paquetes...");
             progress.setCancelable(false);
-            new MyTaskGenerarSup(progress, MainActivity.this, pkg, rutaOrigen, archivoOrigen, rutaDestino, archivoDestino).execute();
+            new MyTaskGenerarSup(progress, MainActivity.this, pkg, rutaOrigen, archivoOrigen, rutaDestino, archivoDestino, md5).execute();
             detect =  (CardView)findViewById(R.id.detectUsb);
             gene.setClickable(false);
             detect.setClickable(true);
@@ -576,7 +578,7 @@ public class MainActivity extends AppCompatActivity {
         dialog.show();
     }
     private boolean checkDataBase() {
-        File databasePath = getApplicationContext().getDatabasePath(DB_PATH + DB_NAME);
+        File databasePath = getApplicationContext().getDatabasePath(rutaOrigen + archivoOrigen);
         return databasePath.exists();
     }
 

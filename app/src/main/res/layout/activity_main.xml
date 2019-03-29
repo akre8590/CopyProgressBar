@@ -15,7 +15,6 @@
         android:layout_marginBottom="30dp">
 
         <Button
-            style="@style/Widget.MaterialComponents.Button"
             android:layout_marginLeft="30dp"
             android:layout_alignParentLeft="true"
             android:visibility="invisible"
@@ -25,7 +24,7 @@
             android:textColor="#FFFF"
             android:layout_width="170dp"
             android:layout_height="80dp"
-            android:text="TRANSFERIR A USB"
+            android:text="TRANSFERIR A OPERA"
             android:drawableBottom="@drawable/ic_usb_black_24dp"
             android:background="#2E9AFE" />
 

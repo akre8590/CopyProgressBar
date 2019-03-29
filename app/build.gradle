@@ -32,4 +32,6 @@ dependencies {
     implementation 'com.fxn769:cue:1.1'
     implementation 'com.github.mjdev:libaums:0.5.5'
     implementation 'net.zetetic:android-database-sqlcipher:4.0.1'
+
+    implementation(name:'android-database-sqlitecrypt-3.23.0', ext:'aar')
 }
