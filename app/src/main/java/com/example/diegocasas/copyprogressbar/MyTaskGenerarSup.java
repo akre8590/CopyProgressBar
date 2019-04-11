@@ -3,6 +3,7 @@ package com.example.diegocasas.copyprogressbar;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
+import android.provider.Settings;
 import android.util.Log;
 import android.widget.ImageView;
 
@@ -19,6 +20,7 @@ import ir.mahdi.mzip.zip.ZipArchive;
 
 public class MyTaskGenerarSup extends AsyncTask<Void, Void, Void> {
 
+    private long time;
     SQLiteDatabase db;
     ProgressDialog progress;
     ImageView package1;
@@ -36,24 +38,26 @@ public class MyTaskGenerarSup extends AsyncTask<Void, Void, Void> {
         this.md5 = md5;
     }
     public void onPreExecute() {
+        time = System.currentTimeMillis();
         progress.show();
     }
 
     @Override
     protected Void doInBackground(Void... voids) {
-        generateFile(rutaOrigen, archivoOrigen, rutaDestino, md5);
-        cryptDataBase(rutaOrigen,archivoOrigen);
-        //cryptDataBase();
-        zipFile( rutaOrigen,  archivoOrigen,  rutaDestino,  archivoDestino, md5);
+        cryptDataBase(rutaOrigen,archivoOrigen);//encripta la base de datos origen
+        zipFile1( rutaOrigen,  archivoOrigen,  archivoDestino);//crea el primer archivo zip
+        generateFile1(rutaOrigen, archivoDestino, md5);//saca el md5 del zip
+        zipFile2(rutaOrigen, archivoOrigen, rutaDestino, archivoDestino, md5);//crea el segundo zip
+
         return null;
     }
     public void onPostExecute(Void unused) {
         progress.dismiss();
         CueMsg cueMsg = new CueMsg(context);
-        cueMsg.cueCorrect("Paquetes generados con éxito!!!");
+        cueMsg.cueCorrect("Diferencia de tiempo = " + (System.currentTimeMillis() - time));
         package1.setBackgroundResource(R.drawable.cerclebackgroundgreen);
         package1.setImageResource(R.drawable.ic_check_black_24dp);
-
+        //Log.d("TestTask", "Diferencia de Tiempo = " + (System.currentTimeMillis() - time));
     }
     public static String fileToMD5(String filePath) {
         InputStream inputStream = null;
@@ -88,49 +92,64 @@ public class MyTaskGenerarSup extends AsyncTask<Void, Void, Void> {
         return returnVal;
     }
 
-    public void generateFile(String rutaOrigen, String archivoOrigen, String rutaDestino, String md5) {
+    public void generateFile1(String rutaOrigen, String archivoDestino, String md5) {
         try {
-            File root = new File(rutaOrigen);
-            if (!root.exists()) {
-                root.mkdirs();
-            }
-            File gpxfile = new File(rutaDestino, md5 + ".txt");
+
+            File gpxfile = new File(rutaOrigen, md5 + ".txt");
             FileWriter writer = new FileWriter(gpxfile);
-            writer.append(fileToMD5(rutaOrigen + archivoOrigen));
+            writer.append(fileToMD5(rutaOrigen + archivoDestino));
             writer.flush();
             writer.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-    private void zipFile(String rutaOrigen, String nombreDB, String rutaDestino, String nombreZip, String md5){
+
+    public void generateFile(String rutaOrigen, String archivoDestino, String md5) {
+        try {
+            File root = new File(rutaOrigen);
+            if (!root.exists()) {
+                root.mkdirs();
+            }
+            File gpxfile = new File(rutaOrigen, md5 + ".txt");
+            FileWriter writer = new FileWriter(gpxfile);
+            writer.append(fileToMD5(rutaOrigen + archivoDestino));
+            writer.flush();
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    private void zipFile1(String rutaOrigen, String nombreDB, String nombreZip){
         ZipArchive zipArchive1 = new ZipArchive();
         zipArchive1.zip(rutaOrigen + nombreDB, rutaOrigen + nombreZip, "CONTA22015");
 
+    }
+    private void zipFile2(String rutaOrigen, String archivoOrigen, String rutaDestino, String archivoDestino, String md5){
         ZipArchive zipArchive2 = new ZipArchive();
-        zipArchive2.zip(rutaOrigen + nombreZip, rutaDestino + nombreZip, "CONTA22015");
-        zipArchive2.zip( rutaDestino + md5 + ".txt", rutaDestino + nombreZip, "CONTA22015");
+        zipArchive2.zip(rutaOrigen + archivoDestino, rutaDestino + archivoDestino, "CONTA22015");
+        zipArchive2.zip( rutaOrigen + md5 + ".txt", rutaDestino + archivoDestino, "CONTA22015");
 
-        File fdelete = new File(rutaOrigen + nombreZip);
+        File fdelete = new File(rutaOrigen + archivoOrigen);
         if (fdelete.exists()) {
             if (fdelete.delete()) {
-                Log.d("DELETE", rutaOrigen + nombreZip);
+                Log.d("DELETE", rutaOrigen + archivoOrigen);
             } else {
-                Log.d("DELETE", rutaOrigen + nombreZip);
+                Log.d("DELETE", rutaOrigen + archivoOrigen);
             }
         }
-        File fdelete2 = new File(rutaDestino + md5 + ".txt");
-        if (fdelete2.exists()){
-            fdelete2.delete();
+        File fdelete2 = new File(rutaOrigen + archivoDestino);
+        if (fdelete2.exists()) {
+            if (fdelete2.delete()) {
+                Log.d("DELETE", rutaOrigen + archivoDestino);
+            } else {
+                Log.d("DELETE", rutaOrigen + archivoDestino);
+            }
         }
-        /**File fdelete2 = new File(rutaOrigen + nombreDB);
-         if (fdelete2.exists()) {
-         if (fdelete2.delete()) {
-         Log.d("DELETE", rutaOrigen + nombreDB);
-         } else {
-         Log.d("DELETE", rutaOrigen + nombreDB);
-         }
-         }**/
+        File fdelete3 = new File(rutaOrigen + md5 + ".txt");
+        if (fdelete3.exists()){
+            fdelete3.delete();
+        }
     }
 
     private void cryptDataBase(String rutaOrigen, String nombreDB){
@@ -138,13 +157,4 @@ public class MyTaskGenerarSup extends AsyncTask<Void, Void, Void> {
         db.changePassword("abc123");
         db.close();
     }
-
-    /**private void cryptDataBase(){
-        //SQLiteDatabase db;
-        SQLiteDatabase db;
-        String path = "/storage/emulated/0/datos1.db3";
-        db = SQLiteDatabase.openOrCreateDatabase(path,"", null);
-        db.changePassword("abc123");
-        db.close();
-    }**/
 }
